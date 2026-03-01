@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Name — Personal Site</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">
+    <svg class="icon-sun" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+    </svg>
+    <svg class="icon-moon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+    </svg>
+  </button>
+
+  <main>
+    <section class="hero">
+      <div class="avatar">
+        <img src="WPB Profile Picture.jpg" alt="Your Name">
+      </div>
+      <h1>Your Name</h1>
+      <p class="bio">Developer, designer &amp; maker of things. I build tools that help people work better. Currently exploring the intersection of AI and creative workflows.</p>
+    </section>
+
+    <section class="projects">
+      <h2>Projects</h2>
+      <ul>
+        <li>
+          <a href="https://github.com" target="_blank" rel="noopener">
+            <strong>Project Alpha</strong>
+            <span>A CLI tool for automating daily workflows</span>
+          </a>
+        </li>
+        <li>
+          <a href="https://github.com" target="_blank" rel="noopener">
+            <strong>Project Beta</strong>
+            <span>Open-source design system for modern web apps</span>
+          </a>
+        </li>
+        <li>
+          <a href="https://github.com" target="_blank" rel="noopener">
+            <strong>Project Gamma</strong>
+            <span>Real-time collaboration tool built with WebSockets</span>
+          </a>
+        </li>
+      </ul>
+    </section>
+
+    <section class="contact">
+      <h2>Get in Touch</h2>
+      <form id="contact-form">
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" required placeholder="Jane Doe">
+
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required placeholder="jane@example.com">
+
+        <label for="message">Message</label>
+        <textarea id="message" name="message" required placeholder="Say hello..."></textarea>
+
+        <button type="submit">Send Message</button>
+      </form>
+      <p id="form-status" class="form-status" hidden></p>
+    </section>
+  </main>
+
+  <footer>
+    <div class="social-links">
+      <a href="https://github.com" target="_blank" rel="noopener" aria-label="GitHub">GitHub</a>
+      <a href="https://twitter.com" target="_blank" rel="noopener" aria-label="Twitter">Twitter</a>
+      <a href="https://linkedin.com" target="_blank" rel="noopener" aria-label="LinkedIn">LinkedIn</a>
+    </div>
+    <p>&copy; 2026 Your Name</p>
+  </footer>
+
+  <script>
+    // Dark mode toggle
+    const toggle = document.getElementById('theme-toggle');
+    const html = document.documentElement;
+
+    function setTheme(dark) {
+      html.setAttribute('data-theme', dark ? 'dark' : 'light');
+      localStorage.setItem('theme', dark ? 'dark' : 'light');
+    }
+
+    // Init: check saved preference, then system preference
+    const saved = localStorage.getItem('theme');
+    if (saved) {
+      setTheme(saved === 'dark');
+    } else {
+      setTheme(window.matchMedia('(prefers-color-scheme: dark)').matches);
+    }
+
+    toggle.addEventListener('click', () => {
+      const isDark = html.getAttribute('data-theme') === 'dark';
+      setTheme(!isDark);
+    });
+
+    // Contact form
+    document.getElementById('contact-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const status = document.getElementById('form-status');
+      const btn = this.querySelector('button');
+      btn.disabled = true;
+      btn.textContent = 'Sending...';
+
+      try {
+        const res = await fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: this.name.value,
+            email: this.email.value,
+            message: this.message.value
+          })
+        });
+        const data = await res.json();
+        status.textContent = data.message || 'Thanks! Your message has been sent.';
+        status.hidden = false;
+        if (res.ok) this.reset();
+      } catch {
+        status.textContent = 'Something went wrong. Please try again.';
+        status.hidden = false;
+      }
+      btn.disabled = false;
+      btn.textContent = 'Send Message';
+    });
+  </script>
+</body>
+</html>
